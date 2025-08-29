@@ -1,0 +1,356 @@
+/* Reset de estilos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+/* 
+   Clases para el efecto de fade-in:
+   - .fade-in arranca con opacity:0
+   - .fade-in.show pasa a opacity:1 con transition
+*/
+/* Animación de entrada en cascada */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+  }
+  
+  /* Estado final cuando el elemento ya está visible */
+.fade-in.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Título con fade-in controlado por JS */
+h2 {
+  /* Inicia oculto (el JS le agrega .fade-in y .show) */
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+h2.show {
+  opacity: 1;
+}
+
+/* Contenedor principal */
+.container {
+  position: relative;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  height: 85%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+/* Flechas de empleados, arriba a la derecha */
+#employee-arrows {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+/* Contenedor con scroll SIEMPRE visible para evitar saltos */
+.table-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  position: relative; /* Para animaciones */
+}
+
+/* --- Animaciones de deslizamiento para cambio de día/página --- */
+.slide-left-exit {
+  animation: slideLeftExit 0.4s forwards;
+}
+.slide-left-enter {
+  animation: slideLeftEnter 0.4s forwards;
+}
+.slide-right-exit {
+  animation: slideRightExit 0.4s forwards;
+}
+.slide-right-enter {
+  animation: slideRightEnter 0.4s forwards;
+}
+
+@keyframes slideLeftExit {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+}
+@keyframes slideLeftEnter {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slideRightExit {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+@keyframes slideRightEnter {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* -------------------- Tabla -------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+  table-layout: fixed;
+}
+
+/* Mantener el encabezado fijo */
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background-color: #f0f0f0;
+}
+
+/* Sombra para el encabezado */
+thead tr {
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajustes generales de celdas */
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+/* Asegurar que celdas del cuerpo no se monten en thead */
+tbody td {
+  position: relative;
+  z-index: 0;
+}
+
+/* Encabezado de la tabla */
+th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  height: 50px;
+}
+
+/* Encabezado de los trabajadores (Nombre + Imagen en línea) */
+.worker-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  white-space: nowrap;
+}
+
+/* Nombre del trabajador */
+.worker-header span {
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.worker-header span:last-child {
+  color: #00000056;
+  font-size: 12px;
+}
+
+/* Imagen circular del trabajador */
+.worker-header img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.worker-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;  /* Limita el ancho al de la celda */
+  white-space: normal;    /* Permite saltos de línea */
+  text-align: center;
+}
+
+.worker-role {
+  font-size: 12px;
+  color: #00000056;
+  white-space: normal;    /* Permite salto de línea */
+  word-break: break-word; /* Rompe palabras si es necesario */
+  text-align: center;
+}
+
+
+/* Ajuste de tareas (Colores por estado) */
+.status-inprogress {
+  background-color: #ffec99; /* Amarillo - In Progress */
+}
+.status-todo {
+  background-color: #99ccff; /* Azul - To Do */
+}
+.status-extras {
+  background-color: #d9d9d9; /* Gris - Extras */
+}
+.status-done {
+  background-color: #b2f0b2; /* Verde - Done */
+}
+.status-overdue {
+  background-color: #ff6666 !important; /* Rojo para actividades vencidas */
+  z-index: 0 !important;
+}
+
+/******* Reloj *******/
+.clock-day:before {
+  content: var(--timer-day);
+}
+.clock-hours:before {
+  content: var(--timer-hours);
+}
+.clock-minutes:before {
+  content: var(--timer-minutes);
+}
+.clock-seconds:before {
+  content: var(--timer-seconds);
+}
+
+.clock-container {
+  /* Inicia invisible, se mostrará con fade-in */
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #ffffff;
+  border-radius: 3px;
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+}
+.clock-container.show {
+  opacity: 1;
+}
+
+.clock-col {
+  text-align: center;
+  margin: 0 10px;
+  min-width: 20px;
+  position: relative;
+}
+
+/* Decoraciones en clock-col */
+.clock-col:not(:last-child):before,
+.clock-col:not(:last-child):after {
+  content: "";
+  background-color: rgba(0, 0, 0, 0.3);
+  height: 2px;
+  width: 2px;
+  border-radius: 50%;
+  display: block;
+  position: absolute;
+  right: -4px;
+}
+
+.clock-col:not(:last-child):before {
+  top: 40%;
+}
+.clock-col:not(:last-child):after {
+  top: 60%;
+}
+
+.clock-timer:before {
+  color: #000000;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+}
+
+.clock-label {
+  color: rgba(0, 0, 0, 0.35);
+  text-transform: uppercase;
+  font-size: 0.5rem;
+  margin-top: 2px;
+}
+
+/* Botones "Hoy" y flechas: estilo unificado */
+.arrows-col button,
+#today-btn {
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #000;
+  outline: none;
+  padding: 0.3rem 0.6rem;
+}
+
+/* Ocultar columnas de hora/min/seg si NO es hoy */
+.hidden {
+  display: none !important;
+}
+
+.activity-name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.activity-desc {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.2;
+}
+
+/* La tabla .table-wrapper (fade-in al final) */
+.table-wrapper {
+  opacity: 0;            /* Arranca oculta */
+  transition: opacity 1s ease-in-out; 
+}
+.table-wrapper.show {
+  opacity: 1;
+}

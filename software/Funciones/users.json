@@ -1,0 +1,34 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "password": "admin123",
+      "role": "administrador",
+      "empleado_id": 999
+    },
+    {
+      "username": "Luis",
+      "password": "123456",
+      "role": "empleado",
+      "empleado_id": 1
+    },
+    {
+      "username": "Jona",
+      "password": "123456",
+      "role": "empleado",
+      "empleado_id": 2
+    },
+    {
+      "username": "adr0110",
+      "password": "Passw0rd1",
+      "role": "empleado",
+      "empleado_id": 3
+    },
+    {
+      "username": "Davif",
+      "password": "123456",
+      "role": "empleado",
+      "empleado_id": 4
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="stylesheet" href="/web/Home/home.css">
+  <link rel="stylesheet" href="/web/menu/menu.css">
+  <script src="/web/menu/menu.js" defer></script>
+  <script src="/web/Home/home.js"></script>
+  <script src="/web/Login/login.js"></script>
+</head>
+<body>
+  <div id="menu-container"></div>
+  
+  <div class="container">
+    <!-- Se asigna id para poder actualizar el mensaje dinámicamente -->
+    <h1 class="fade-in" id="welcomeMessage"></h1>
+    <p class="fade-in">Esta es la página de inicio.</p>
+    
+    <div class="chart-wrapper fade-in">
+      <div class="chart">
+        <svg class="progress-ring" width="120" height="120">
+          <!-- Círculos de progreso -->
+        
+          <circle class="progress-ring__circle not-started" stroke="#e6e6e6" stroke-width="6" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314" stroke-dashoffset="314" />
+          <circle class="progress-ring__circle extras" stroke="#9fbf21" stroke-width="10" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314" stroke-dashoffset="314" />
+          <circle class="progress-ring__circle pending" stroke="#ff6347" stroke-width="14" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314" stroke-dashoffset="314" />
+          <circle class="progress-ring__circle completed" stroke="#2d79f3" stroke-width="18" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314" stroke-dashoffset="314" />
+          
+
+        </svg>
+        <div class="chart-text">
+          <span>0%</span>
+        </div>
+      </div>
+      
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-color completed"></span>
+          <span class="legend-text">Tareas Completadas</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color pending"></span>
+          <span class="legend-text">Tareas en Progreso</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color not-started"></span>
+          <span class="legend-text">Tareas Sin Iniciar</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color extras"></span>
+          <span class="legend-text">Tareas Extras</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="guia fade-in">
+      <h2>Guía de Uso</h2>
+      <div class="instructivo">
+        <div class="paso">
+          <span class="numero">1</span>
+          <div class="contenido">
+            <h3>Inicia sesión</h3>
+            <p>Accede a la aplicación utilizando tus credenciales personales.</p>
+          </div>
+        </div>
+        <div class="paso">
+          <span class="numero">2</span>
+          <div class="contenido">
+            <h3>Visualiza tu progreso</h3>
+            <p>Consulta el gráfico para ver el porcentaje de tareas completadas y pendientes.</p>
+          </div>
+        </div>
+        <div class="paso">
+          <span class="numero">3</span>
+          <div class="contenido">
+            <h3>Gestiona tus tareas</h3>
+            <p>Utiliza la sección de tareas para crear, editar y marcar tus actividades.</p>
+          </div>
+        </div>
+        <div class="paso">
+          <span class="numero">4</span>
+          <div class="contenido">
+            <h3>Cierra sesión</h3>
+            <p>Finaliza tu sesión de forma segura cuando hayas terminado.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

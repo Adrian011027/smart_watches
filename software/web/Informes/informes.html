@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Informes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tu CSS principal -->
+  <link rel="stylesheet" href="/web/menu/menu.css">
+  <link rel="stylesheet" href="/web/Informes/informes.css">
+
+  <!-- FontAwesome (opcional) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <!-- Scripts -->
+  <script src="/web/menu/menu.js" defer></script>
+  <script src="/web/Informes/main.js" type="module"></script>
+</head>
+<body>
+
+  <!-- Menú -->
+  <div id="menu-container"></div>
+
+  <!-- Contenedor principal -->
+  <div class="container">
+    <div id="informes-content" class="fade-in">
+      
+      <!-- Izquierda: tarjetas de empleados -->
+      <div id="tarjetas-container"></div>
+
+      <!-- Derecha: card de tareas (aparece al click) -->
+      <div id="calendario-container" style="flex: 1; display: none;">
+        <!-- Se inyectará con la clase .tasks-card via JS -->
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
