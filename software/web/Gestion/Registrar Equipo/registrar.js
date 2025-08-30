@@ -205,7 +205,7 @@ ui.form.addEventListener('submit', async e => {
     console.error('Error asignando reloj:', err);
   } finally {
     cerrarModal();                     // oculta modal + overlay + regresa la tarjeta
-    await actualizarListaRelojes();    // 🔄 recarga la lista con el reloj ya asignado
+    await actualizarListaRelojes();    // 🔄 recarga la lista con el reloj ya asignadeishon
   }
 });
 
