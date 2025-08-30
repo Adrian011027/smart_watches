@@ -7,7 +7,7 @@ export function abrirModal(id) {
 
 /* -------- restricción de rol -------- */
 const usuario = JSON.parse(localStorage.getItem("loggedUser"));
-if (!usuario || usuario.role !== "administrador") {
+if (!usuario || usuario.role !== "admin") {
   window.location.href = "/inicio";
 }
 
