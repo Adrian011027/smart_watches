@@ -4,7 +4,7 @@ import aiohttp_cors
 from aiohttp import web
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dateutil.relativedelta import relativedelta, SU
-
+from datetime import datetime
 from rutas import setup_routes
 from Funciones.asignarIp import obtener_ip_local
 from Funciones.asignarReloj import verificar_tareas_expiradas
@@ -77,9 +77,9 @@ async def endpoint_backup(request):
 async def startup_scheduler(app):
     scheduler = AsyncIOScheduler()
 
-    prox_domingo = (
-        time.time() + relativedelta(weekday=SU(+1))
-    )
+    #prox_domingo = (time.time() + relativedelta(weekday=SU(+1)))
+    prox_domingo = datetime.now() + relativedelta(weekday=SU(+1))
+
 
     scheduler.add_job(
         generar_backup,

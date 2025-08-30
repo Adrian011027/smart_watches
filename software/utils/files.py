@@ -1,4 +1,3 @@
-# utils/files.py
 import os
 import json
 from pydantic import SecretStr
@@ -45,6 +44,10 @@ def guardar_user(user_data):
     """
     Agrega un único usuario a la lista
     """
+    # 🔑 Normalizar SecretStr si quedara en el dict
+    if isinstance(user_data.get("password"), SecretStr):
+        user_data["password"] = user_data["password"].get_secret_value()
+
     users = leer_users()
     users["users"].append(user_data)
     with open(USERS_PATH, "w", encoding="utf-8") as f:

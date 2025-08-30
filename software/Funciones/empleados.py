@@ -1,10 +1,11 @@
 from aiohttp import web
-from Funciones.schemas import EmpleadoSchema, EmpleadoUpdateSchema, Users, UsersUpdate
+from Funciones.schemas import EmpleadoSchema, EmpleadoUpdateSchema, Users
 from pydantic import ValidationError
 from utils.files import leer_empleados, guardar_empleados, leer_users, guardar_users, guardar_user
 import aiofiles
 import os
 import re
+import bcrypt
 
 UPLOAD_DIR = "./web/Images/"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -35,36 +36,95 @@ async def users(request):
 def limpiar_nombre(nombre):
     return re.sub(r'[^a-zA-Z0-9_-]', '_', nombre)
 
-# Crear empleado (subida de imagen incluida)
+# ------------------ Crear empleado ------------------
 async def crear_empleado(request):
-    """
-    Normaliza aliases del campo 'role' antes de validar con Pydantic para evitar
-    ValidationError cuando vienen valores como "admin".
-    """
-    data = await request.json()
+    empleados = leer_empleados()
+    nuevo_id = max([e['id'] for e in empleados], default=0) + 1
 
-    # Normalizar alias comunes para 'role'
+    data = {}
+    imagen = None
+    username = None
+
+    # Soporte JSON y multipart
+    if request.content_type.startswith("multipart/"):
+        reader = await request.multipart()
+        async for part in reader:
+            if part.name == "imagen":
+                imagen = await part.read()
+            else:
+                value = await part.text()
+                data[part.name] = value
+                if part.name == "username":
+                    username = value
+    else:
+        try:
+            data = await request.json()
+            username = data.get("username")
+        except Exception:
+            return web.json_response({"error": "Formato de request no válido"}, status=400)
+
+    if not username:
+        return web.json_response({"error": "Falta username"}, status=400)
+    if not data.get("password"):
+        return web.json_response({"error": "Falta password"}, status=400)
+
+    # Normalizar role
     _role_aliases = {
         "admin": "administrador",
         "administrator": "administrador",
         "adm": "administrador",
         "empleado": "empleado",
-        "administrador": "administrador",
         "user": "empleado",
     }
     if "role" in data and isinstance(data["role"], str):
-        key = data["role"].strip().lower()
-        data["role"] = _role_aliases.get(key, data["role"])
+        data["role"] = _role_aliases.get(data["role"].strip().lower(), data["role"])
 
-    # ...existing code that prepara/valida otros campos...
-    # por ejemplo: user = Users(**data)
-    # Asegúrate de que la variable 'Users' esté importada desde schemas
-    user = Users(**data)
+    # Guardar imagen si viene
+    filename = f"{username}.jpg"
+    if imagen:
+        filepath = os.path.join(UPLOAD_DIR, filename)
+        async with aiofiles.open(filepath, "wb") as f:
+            await f.write(imagen)
+        data["imagen"] = filename
+    else:
+        data["imagen"] = None
 
-    # ...existing code que guarda el usuario, retorna response, etc...
-    # ejemplo de retorno (mantén tu implementación):
-    # return web.json_response({"ok": True, "user": user.dict()}, status=201)
+    # Crear empleado
+    try:
+        empleado_model = EmpleadoSchema(
+            nombre=data.get("nombre"),
+            puesto=data.get("puesto"),
+            imagen=data.get("imagen"),
+        )
+    except ValidationError as e:
+        return web.json_response({"error": e.errors()}, status=400)
 
+    nuevo_empleado = empleado_model.model_dump()
+    nuevo_empleado["id"] = nuevo_id
+    empleados.append(nuevo_empleado)
+    guardar_empleados(empleados)
+
+    # Hashear contraseña con bcrypt
+    password_claro = data.get("password")
+    hashed = bcrypt.hashpw(password_claro.encode("utf-8"), bcrypt.gensalt())
+
+    user = Users(
+        username=username,
+        password=hashed.decode("utf-8"),  # guardamos el hash
+        role=data.get("role"),
+        empleado_id=nuevo_id
+    )
+
+    # 🔑 usar mode="json" para que SecretStr se convierta a str
+    guardar_user(user.model_dump(mode="json"))
+
+    return web.json_response({
+        "message": "Empleado agregado correctamente",
+        "empleado": nuevo_empleado,
+        "user": user.model_dump(mode="json")
+    }, status=201)
+
+# ------------------ Eliminar empleado ------------------
 async def eliminar_empleado(request):
     id = int(request.match_info['id'])
     empleados = leer_empleados()
@@ -82,77 +142,62 @@ async def eliminar_empleado(request):
     guardar_users(users)
     return web.json_response({'message': 'Empleado eliminado correctamente'})
 
+# ------------------ Actualizar empleado ------------------
 async def actualizar_empleado(request):
-    """
-    Actualiza los datos de un empleado existente.
-    """
     empleado_id = request.match_info.get('id')
     if not empleado_id:
-        return web.json_response(
-            {"error": "ID de empleado requerido"}, 
-            status=400
-        )
+        return web.json_response({"error": "ID de empleado requerido"}, status=400)
 
-    try:
-        # Obtener datos del request
-        data = await request.json()
-        
-        # Normalizar role si viene en la actualización
-        if "role" in data and isinstance(data["role"], str):
-            _role_aliases = {
-                "admin": "administrador",
-                "administrator": "administrador",
-                "empleado": "empleado",
-            }
-            key = data["role"].strip().lower()
-            data["role"] = _role_aliases.get(key, data["role"])
+    empleados = leer_empleados()
+    empleado = next((e for e in empleados if str(e["id"]) == str(empleado_id)), None)
+    if not empleado:
+        return web.json_response({"error": "Empleado no encontrado"}, status=404)
 
-        # Validar datos con Pydantic
-        from .schemas import Users
-        user_update = Users(**data)
+    data = {}
+    imagen = None
 
-        # TODO: Implementa la lógica de actualización en tu base de datos
-        # Por ejemplo:
-        # await db.empleados.update_one(
-        #     {"_id": empleado_id},
-        #     {"$set": user_update.dict(exclude_unset=True)}
-        # )
+    if request.content_type.startswith("multipart/"):
+        reader = await request.multipart()
+        async for part in reader:
+            if part.name == "imagen":
+                imagen = await part.read()
+            else:
+                value = await part.text()
+                data[part.name] = value
+    else:
+        try:
+            data = await request.json()
+        except Exception:
+            return web.json_response({"error": "Formato de request no válido"}, status=400)
 
-        return web.json_response({
-            "ok": True,
-            "message": f"Empleado {empleado_id} actualizado",
-            "data": user_update.dict()
-        })
+    # Normalizar role
+    _role_aliases = {
+        "admin": "administrador",
+        "administrator": "administrador",
+        "adm": "administrador",
+        "empleado": "empleado",
+        "user": "empleado",
+    }
+    if "role" in data and isinstance(data["role"], str):
+        data["role"] = _role_aliases.get(data["role"].strip().lower(), data["role"])
 
-    except ValueError as ve:
-        return web.json_response(
-            {"error": f"Datos inválidos: {str(ve)}"}, 
-            status=400
-        )
-    except Exception as e:
-        return web.json_response(
-            {"error": f"Error actualizando empleado: {str(e)}"}, 
-            status=500
-        )
+    # Guardar imagen si viene
+    if imagen:
+        filename = f"{empleado.get('nombre','empleado')}.jpg"
+        filepath = os.path.join(UPLOAD_DIR, filename)
+        async with aiofiles.open(filepath, "wb") as f:
+            await f.write(imagen)
+        empleado["imagen"] = filename
 
-# Asegurar que el módulo expone la función con el nombre correcto
-if "update_empleado" in globals() and "actualizar_empleado" not in globals():
-    actualizar_empleado = update_empleado
+    # Actualizar campos
+    for key, value in data.items():
+        if value is not None:
+            empleado[key] = value
 
-# Aliases de compatibilidad: si tu módulo define funciones con nombres distintos,
-# exponemos nombres esperados por las rutas para evitar ImportError.
-# (Esto no sobrescribe funciones existentes con el mismo nombre.)
-_globals = globals()
-_alias_map = {
-    "update_empleado": "actualizar_empleado",
-    "modificar_empleado": "actualizar_empleado",
-    "actualizar_estatus": "actualizar_estatus_empleado",
-    "delete_empleado": "eliminar_empleado",
-    "remove_empleado": "eliminar_empleado",
-    "get_empleado": "empleado_id",
-    "listar_empleados": "empleados",
-}
+    guardar_empleados(empleados)
 
-for src, target in _alias_map.items():
-    if src in _globals and target not in _globals:
-        _globals[target] = _globals[src]
+    return web.json_response({
+        "ok": True,
+        "message": f"Empleado {empleado_id} actualizado correctamente",
+        "empleado": empleado
+    })
