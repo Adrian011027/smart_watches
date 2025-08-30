@@ -1,22 +1,13 @@
-//////////////////////////////////////////////
-// empleados.js
-//////////////////////////////////////////////
-import { mostrarTareasEmpleado } from './main.js';
+import { mostrarTareasEmpleado } from "./TareasPanel.js";
 
 export function createEmpleadoCard(empleado, index) {
   const card = document.createElement("div");
-  card.classList.add("empleado-card");
+  card.classList.add("empleado-card", `card-color-${index % 6}`);
 
-  // Color segun index
-  const colorClass = `card-color-${index % 6}`;
-  card.classList.add(colorClass);
-
-  // Imagen
   const foto = document.createElement("img");
   foto.src = "/web/Images/" + empleado.imagen;
   foto.alt = `Foto de ${empleado.nombre}`;
 
-  // Info
   const infoDiv = document.createElement("div");
   infoDiv.classList.add("empleado-info");
 
@@ -32,7 +23,6 @@ export function createEmpleadoCard(empleado, index) {
   card.appendChild(foto);
   card.appendChild(infoDiv);
 
-  // CLIC => Mostrar tareas
   card.addEventListener("click", () => {
     window.currentEmpleado = empleado;
     mostrarTareasEmpleado(empleado);

@@ -5,7 +5,6 @@
   box-sizing: border-box;
 }
 
-
 .container {
   background-color: #ffffff;
   padding: 20px;
@@ -14,7 +13,6 @@
   width: 90%;   
   height: 85%;
   overflow: hidden;
-
 }
 
 /* Animación de entrada en cascada */
@@ -33,7 +31,6 @@
 /* Solo opacidad, no toca transform ⇒ mantiene el centrado del modal */
 .fade-opacity       { opacity:0; transition:opacity .8s ease-out; }
 .fade-opacity.show  { opacity:1; }
-
 
 /* Título */
 h1 {
@@ -57,7 +54,6 @@ p {
     justify-content: space-around;
     gap: 20px;
     margin-bottom: 20px;
-    
 }
 
 /* Estilo idéntico a los botones del menú */
@@ -102,7 +98,6 @@ p {
     text-align: center;
 }
 
-
 /*-------------------------------------------------------*/
 /* Estilo una vez presionado el boton de Editar Empleado */
 /*-------------------------------------------------------*/
@@ -126,7 +121,6 @@ p {
   border-radius: 8px;
   padding: 10px;
   transition: background-color .3s ease, filter .3s ease, transform .3s ease;
-  
 }
 
 .empleado-card:hover {
@@ -145,7 +139,6 @@ p {
 .empleado-card.selected{
   filter: brightness(0.65);   /* mismo efecto que el hover */
 }
-
 
 /* Imagen del empleado */
 .empleado-img {
@@ -175,9 +168,6 @@ p {
   text-align: center;      /* asegura que el texto quede centrado */
 }
 
-
-
-
 /* Descripción del empleado */
 .empleado-info p {
   margin: 3px 0 0 0;
@@ -201,7 +191,6 @@ p {
 }
 #opciones-edicion {
   width: 500px; /* Puedes ajustar el tamaño según sea necesario */
-  
   border-radius: 10px;
   margin-top: -30em;
   margin-left: 25%; /* Espacio entre la lista y las opciones de edición */
@@ -271,101 +260,17 @@ p {
   color: #fff;              /* blanco puro */
 }
 
-
-#btn-crear-tarea::before   {
-  content: "Crear Tarea"; 
-  }	
-
-#btn-editar-tarea::before   {
-    content: "Editar Tarea"; 
-  }	
-  
-#btn-seleccionar-reloj::before   {
-    content: "Seleccionar Reloj"; 
-}	
-
-#btn-datos-empleado::before   {
-  content: "Datos Empleado"; 
-}	
-
-#btn-horario-actual::before   {
-  content: "Horario Actual"; 
-}	
-
-#btn-eliminar-empleado::before   {
-  content: "Eliminar Empleado"; 
-}
-
-#btn-volver-editar::before   {
-  content: "Volver"; 
-}
+#btn-crear-tarea::before   { content: "Crear Tarea"; }	
+#btn-editar-tarea::before  { content: "Editar Tarea"; }	
+#btn-seleccionar-reloj::before { content: "Seleccionar Reloj"; }	
+#btn-datos-empleado::before { content: "Datos Empleado"; }	
+#btn-horario-actual::before { content: "Horario Actual"; }	
+#btn-eliminar-empleado::before { content: "Eliminar Empleado"; }
+#btn-volver-editar::before { content: "Volver"; } 
 
 /* ----------------- */
 /* Estilo de modales */
 /* ----------------- */
-
-/* Modal de registro de empleado */
-#seccion-crear-dinamica {
-  position: relative; /* Antes estaba fixed */
-  width: 100%;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow-y: hidden  ;
-}
-
-
-/* Grupos de entrada con floating label */
-.inputGroup {
-  position: relative;
-  margin-bottom: 12px;
-  width: 100%;
-}
-
-.inputGroup input,
-.inputGroup select {
-  width: 100%;
-  padding: 10px 8px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: none;
-  outline: none;
-  transition: border-color 0.3s;
-}
-
-.inputGroup label {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  transform: translateY(-50%);
-  color: #777;
-  font-size: 1rem;
-  pointer-events: none;
-  background: white;
-  padding: 0 4px;
-  transition: 0.25s ease;
-}
-
-.inputGroup input:focus + label,
-.inputGroup input:valid + label,
-.inputGroup select:focus + label,
-.inputGroup select:valid + label {
-  top: -10px;
-  left: 10px;
-  font-size: 0.8rem;
-  color: #007bff;
-}
-
-/* Inputs en foco */
-.inputGroup input:focus,
-.inputGroup select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-}
 
 /* Estilo para modales de editar empleado */
 
@@ -546,11 +451,10 @@ p {
   color: #333;
 }
 
-
+/* (Sin estilos de registro de empleado aquí) */
 #asignarTareaBtn,
 .task-form button,
 .btn_edit_dp button,
-#btn-volver-crear-dinamico,
 #btn-volver-registrar {
   display: inline-flex;
   margin-top: 1em;
@@ -571,12 +475,10 @@ p {
 #asignarTareaBtn:hover,
 #task-form button:hover,
 #btn_edit_dp button:hover,
-#btn-volver-crear-dinamico:hover,
 #btn-volver-registrar:hover {
   background-color: transparent;
   color: rgba(0, 0, 0, 1);
 }
-
 
 #modal-create-task h2,
 #modal-edit-task h2 {
@@ -635,9 +537,7 @@ p {
   gap: 5px;                               /* espacio entre filas y columnas */
 }
 
-
 /* Tarjeta de Reloj */
-
 .reloj {
   display: flex;
     flex-direction: column;
@@ -728,7 +628,6 @@ p {
   font-size: 1rem;
 }
 
-
 /* Botón de guardar cambios */
 .modal-content button:hover {
   background-color: #0000004d;
@@ -778,7 +677,6 @@ p {
   visibility: hidden !important;
   pointer-events: none !important;
 }
-
 
 /****************************************************/
 /* Estilos para divs de relojes en registrar equipo */

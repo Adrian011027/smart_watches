@@ -25,7 +25,7 @@ function buildMenu() {
   } else {
     // Hay sesión iniciada
     const userRole = loggedUser.role ? loggedUser.role.toLowerCase() : "";
-    if (userRole === "administrador") {
+    if (userRole === "admin") {
       menuItems = [
         { tabId: 'tab-1', label: 'Inicio', href: '/inicio', defaultChecked: true },
         { tabId: 'tab-2', label: 'General', href: '/general' },
@@ -34,7 +34,7 @@ function buildMenu() {
         { tabId: 'tab-5', label: 'Cerrar Sesión', href: '/logout' }
       ];
     } else {
-      // Usuario empleado (no administrador)
+      // Usuario empleado (no admin)
       menuItems = [
         { tabId: 'tab-1', label: 'Inicio', href: '/inicio', defaultChecked: true },
         { tabId: 'tab-2', label: 'General', href: '/general' },

@@ -5,13 +5,13 @@ from typing import List, Optional, Dict, Literal
 class Users(BaseModel):
     username: str = Field(None, min_length=4, max_length=20)
     password: SecretStr = Field(..., min_length=6, max_length=20)
-    role: Literal["empleado", "administrador"]
+    role: Literal["empleado", "admin"]
     empleado_id: int = Field(None, gt=0, lt=100)
     
 # Esquema para actualizar "users"
 class UsersUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=4, max_length=20)
-    role: Optional[Literal["empleado", "administrador"]]
+    role: Optional[Literal["empleado", "admin"]]
     password: Optional[SecretStr] = Field(None, min_length=6, max_length=20) 
     
 # Esquema para las tareas dentro de los días; las tareas son opcionales en el caso de create se crean vacias update las asigna

@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="inputGroup">
             <select id="role_dp" name="role_dp" required>
               <option value="" disabled selected hidden></option>
-              <option value="administrador">Administrador</option>
+              <option value="admin">admin</option>
               <option value="empleado">Empleado</option>
             </select>
             <label for="role_dp">Role</label>

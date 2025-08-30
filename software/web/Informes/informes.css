@@ -272,3 +272,47 @@ body {
   font-size: 1.1em;
   color: #333;
 }
+
+/* Override de layout para asegurar título arriba y columnas correctas */
+#informes-content{
+  display: flex !important;
+  flex-direction: column !important; /* título encima de todo */
+  align-items: flex-start;   /* <-- important: do not center children */
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Hacer visible y ocupar toda la fila */
+#titulo-informes{
+  display: block;
+  width: 100%;
+  text-align: left;          /* <- left aligned, not centered */
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Por defecto (mobile/normal): apilar tarjetas y calendario en columna */
+.content-row{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* Contenedores internos */
+#tarjetas-container{ display: flex; flex-direction: column; gap: 1rem; width: 100%; }
+#calendario-container{ display: block; width: 100%; }
+
+/* En pantallas grandes: tarjetas + calendario lado a lado */
+@media (min-width: 1000px){
+  .content-row{
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  #tarjetas-container{ flex: 0 0 420px; max-width: 420px; }
+  #calendario-container{ flex: 1 1 auto; }
+}
