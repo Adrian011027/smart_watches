@@ -25,7 +25,8 @@ function buildMenu() {
   } else {
     // Hay sesión iniciada
     const userRole = loggedUser.role ? loggedUser.role.toLowerCase() : "";
-    if (userRole === "admin") {
+    // Aceptar tanto "admin" como "administrador" para evitar inconsistencias
+    if (userRole === "admin" || userRole === "administrador") {
       menuItems = [
         { tabId: 'tab-1', label: 'Inicio', href: '/inicio', defaultChecked: true },
         { tabId: 'tab-2', label: 'General', href: '/general' },

@@ -13,12 +13,6 @@
       "empleado_id": 1
     },
     {
-      "username": "Jona",
-      "password": "123456",
-      "role": "empleado",
-      "empleado_id": 2
-    },
-    {
       "username": "adr0110",
       "password": "Passw0rd1",
       "role": "empleado",
