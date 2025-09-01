@@ -6,7 +6,7 @@ import { mostrarTareasEmpleado, setTareasRealizadasMap } from "./components/Tare
 
 /* -------------------- Sesión ------------------- */
 const usuario = JSON.parse(localStorage.getItem("loggedUser"));
-if (!usuario || !["administrador", "empleado"].includes(usuario.role)) {
+if (!usuario || !["admin", "empleado"].includes(usuario.role)) {
   window.location.href = "/inicio";
 }
 
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const { role, empleado_id } = usuario;
 
-    if (role === "administrador") {
+    if (role === "admin") {
       await generarItinerarios();
     } else if (role === "empleado") {
       await mostrarPanelDerecho(parseInt(empleado_id, 10));
