@@ -144,7 +144,7 @@ async def eliminar_empleado(request):
 
 # ------------------ Actualizar empleado ------------------
 async def actualizar_empleado(request):
-    empleado_id = request.match_info.get('id')
+    empleado_id = request.match_info.get("id")
     if not empleado_id:
         return web.json_response({"error": "ID de empleado requerido"}, status=400)
 
@@ -153,22 +153,74 @@ async def actualizar_empleado(request):
     if not empleado:
         return web.json_response({"error": "Empleado no encontrado"}, status=404)
 
-    data = {}
-    imagen = None
+    try:
+        data = await request.json()
+    except Exception:
+        return web.json_response({"error": "Formato de request no válido"}, status=400)
 
-    if request.content_type.startswith("multipart/"):
-        reader = await request.multipart()
-        async for part in reader:
-            if part.name == "imagen":
-                imagen = await part.read()
-            else:
+    # ------------------ Actualización de tareas ------------------
+    if "tareas_asignadas" in data and isinstance(data["tareas_asignadas"], dict):
+        for dia, nuevas_tareas in data["tareas_asignadas"].items():
+            if not isinstance(nuevas_tareas, list):
+                continue
+
+            # aseguramos que el día exista
+            if dia not in empleado["tareas_asignadas"]:
+                empleado["tareas_asignadas"][dia] = []
+
+            for nueva in nuevas_tareas:
+                if "id" not in nueva:
+                    continue
+
+                # buscar si la tarea ya existe
+                for i, tarea in enumerate(empleado["tareas_asignadas"][dia]):
+                    if tarea.get("id") == nueva["id"]:
+                        # actualizar solo esa tarea
+                        empleado["tareas_asignadas"][dia][i].update(nueva)
+                        break
+                else:
+                    # si no existe, agregarla
+                    empleado["tareas_asignadas"][dia].append(nueva)
+
+        # quitamos del payload para no sobreescribir todo
+        data.pop("tareas_asignadas")
+
+    # ------------------ Actualización de otros campos ------------------
+    for key, value in data.items():
+        if value is not None:
+            empleado[key] = value
+
+    guardar_empleados(empleados)
+
+    return web.json_response({
+        "ok": True,
+        "message": f"Empleado {empleado_id} actualizado correctamente",
+        "empleado": empleado
+    })
+
+# ------------------ Actualizar usuario ------------------
+async def actualizar_user(request):
+    user_id = request.match_info.get("id")
+    if not user_id:
+        return web.json_response({"error": "ID de usuario requerido"}, status=400)
+
+    users_data = leer_users()
+    users = users_data.get("users", [])
+    user = next((u for u in users if str(u["empleado_id"]) == str(user_id)), None)
+    if not user:
+        return web.json_response({"error": "Usuario no encontrado"}, status=404)
+
+    try:
+        if request.content_type.startswith("multipart/"):
+            reader = await request.multipart()
+            data = {}
+            async for part in reader:
                 value = await part.text()
                 data[part.name] = value
-    else:
-        try:
+        else:
             data = await request.json()
-        except Exception:
-            return web.json_response({"error": "Formato de request no válido"}, status=400)
+    except Exception:
+        return web.json_response({"error": "Formato de request no válido"}, status=400)
 
     # Normalizar role
     _role_aliases = {
@@ -181,23 +233,22 @@ async def actualizar_empleado(request):
     if "role" in data and isinstance(data["role"], str):
         data["role"] = _role_aliases.get(data["role"].strip().lower(), data["role"])
 
-    # Guardar imagen si viene
-    if imagen:
-        filename = f"{empleado.get('nombre','empleado')}.jpg"
-        filepath = os.path.join(UPLOAD_DIR, filename)
-        async with aiofiles.open(filepath, "wb") as f:
-            await f.write(imagen)
-        empleado["imagen"] = filename
-
     # Actualizar campos
     for key, value in data.items():
-        if value is not None:
-            empleado[key] = value
+        if value is None:
+            continue
+        if key == "password":
+            # Re-hash contraseña
+            hashed = bcrypt.hashpw(value.encode("utf-8"), bcrypt.gensalt())
+            user["password"] = hashed.decode("utf-8")
+        else:
+            user[key] = value
 
-    guardar_empleados(empleados)
+    # Guardar lista completa de users
+    guardar_users(users)
 
     return web.json_response({
         "ok": True,
-        "message": f"Empleado {empleado_id} actualizado correctamente",
-        "empleado": empleado
-    })
+        "message": f"Usuario {user_id} actualizado correctamente",
+        "user": user
+    }, status=200)

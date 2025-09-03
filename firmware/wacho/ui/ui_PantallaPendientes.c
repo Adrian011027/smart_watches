@@ -52,7 +52,7 @@ void ui_PantallaPendientes_screen_init(void)
     lv_obj_set_x(ui_LblPendietes, -50);
     lv_obj_set_y(ui_LblPendietes, 0);
     lv_obj_set_align(ui_LblPendietes, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LblPendietes, "PENDIENTES");
+    lv_label_set_text(ui_LblPendietes, "tareas no\ncompletadas");
     lv_obj_set_style_text_font(ui_LblPendietes, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_BtnTareasExtras = lv_btn_create(ui_ContPanelPBar);

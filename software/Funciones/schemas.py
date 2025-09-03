@@ -34,6 +34,7 @@ class TareaSchema(BaseModel):
     hora: Optional[str] = None  # Ejemplo: "09:30"
     estatus: Optional[int] = None  
     # 1-In Progress, 2-To Do, 3-Extras, 4-ExtraTerminada, 0-Done
+    # 1-En progreso 2-por desempeñar 3-extras 4-extras completadas 5-pendientes 
 
 # Días de la semana en minúsculas
 DIAS_SEMANA = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]

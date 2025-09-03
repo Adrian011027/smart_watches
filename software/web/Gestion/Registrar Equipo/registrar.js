@@ -189,6 +189,8 @@ ui.form.addEventListener('submit', async e => {
   e.preventDefault();
   const payload = { reloj_id: ui.fId.value, empleado_id: ui.fEmp.value };
 
+  console.log("📤 Payload enviado:", payload); // 👈 Aquí lo ves en consola del navegador
+
   try {
     await fetch(`/update_reloj_id/${payload.reloj_id}`, {
       method : 'PATCH',
@@ -208,7 +210,6 @@ ui.form.addEventListener('submit', async e => {
     await actualizarListaRelojes();    
   }
 });
-
 
 
 

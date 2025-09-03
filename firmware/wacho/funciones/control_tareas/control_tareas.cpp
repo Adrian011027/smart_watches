@@ -3,13 +3,13 @@
 // 📌 Procesar lista inicial de tareas (Pendientes o Tareas Extras)
 void procesarPendientes(JsonDocument &doc)
 {
-    if (!doc["Pendientes"].is<JsonArray>())
+    if (!doc["tareas no completadas"].is<JsonArray>())
     {
         Serial.println("❌ No se encontraron tareas en el JSON.");
         return;
     }
 
-    JsonArray tareas = doc["Pendientes"];
+    JsonArray tareas = doc["tareas no completadas"];
 
     const char *tipoTarea = (doc["Comando"].is<const char *>() && strcmp(doc["Comando"], "TareasExtras") == 0)
                                 ? "TareaExtra"
@@ -53,7 +53,7 @@ void procesarPendientes(JsonDocument &doc)
         {
             Tarea &ultima = listaTareasRef.back();
 
-            if (tarea.containsKey("TaskID"))
+            if (tarea["TaskID"].is<const char*>())
             {
                 ultima.taskId = tarea["TaskID"].as<String>();
             }
@@ -62,7 +62,7 @@ void procesarPendientes(JsonDocument &doc)
                 Serial.println("⚠️ No se encontró TaskID en la tarea JSON");
             }
 
-            if (tarea.containsKey("IdEmpleado"))
+            if (tarea["IdEmpleado"].is<const char*>())
             {
                 ultima.idEmpleado = tarea["IdEmpleado"].as<String>();
             }
@@ -75,7 +75,6 @@ void procesarPendientes(JsonDocument &doc)
                         ultima.taskId.c_str(), ultima.idEmpleado.c_str());
         }
     }
-
 
     lv_task_handler();
 }
@@ -222,7 +221,7 @@ void enviarTareaCompletada(void *param)
     delete data;
 }
 
-// 🔥 NUEVO: Mostrar tareas en un solo label
+// 🔥 Mostrar tareas compactas en el reloj
 void mostrarPendientesLVGL(JsonArray pendientes) {
     lv_obj_clean(ui_ContPContenido);  // Limpia contenedor
     int y_offset = 0;
@@ -232,23 +231,26 @@ void mostrarPendientesLVGL(JsonArray pendientes) {
         const char* nombre = tarea["Tarea"];
         const char* tipo   = tarea["Tipo"];
 
-        // Crear contenedor para cada tarea
+        // Crear contenedor más pequeño
         lv_obj_t* contenedor = lv_obj_create(ui_ContPContenido);
-        lv_obj_set_size(contenedor, 180, 40);
+        lv_obj_set_size(contenedor, 180, 28);   // 🔹 antes 40, ahora más compacto
         lv_obj_set_y(contenedor, y_offset);
-        y_offset += 50;
+        y_offset += 32;  // 🔹 separación más pequeña
 
         // Label de texto
         lv_obj_t* lbl = lv_label_create(contenedor);
         lv_label_set_text_fmt(lbl, "%s - %s", hora, nombre);
         lv_obj_align(lbl, LV_ALIGN_LEFT_MID, 5, 0);
+        lv_obj_set_style_text_font(lbl, &lv_font_montserrat_12, 0);  // 🔹 fuente pequeña
+        lv_label_set_long_mode(lbl, LV_LABEL_LONG_SCROLL_CIRCULAR);  // 🔹 scroll si es muy largo
 
         // Botón de palomita
         lv_obj_t* btn = lv_btn_create(contenedor);
-        lv_obj_set_size(btn, 30, 30);
-        lv_obj_align(btn, LV_ALIGN_RIGHT_MID, -5, 0);
+        lv_obj_set_size(btn, 22, 22);  // 🔹 más pequeño
+        lv_obj_align(btn, LV_ALIGN_RIGHT_MID, -3, 0);
         lv_obj_t* icono = lv_label_create(btn);
         lv_label_set_text(icono, LV_SYMBOL_OK);
+        lv_obj_set_style_text_font(icono, &lv_font_montserrat_14, 0);
 
         // Estructura para enviar datos
         TareaCompletadaData* data = new TareaCompletadaData{

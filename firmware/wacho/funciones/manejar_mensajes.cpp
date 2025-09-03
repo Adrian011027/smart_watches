@@ -56,7 +56,7 @@ void procesarComando(JsonDocument &doc)
 
   // Mapa estático que asocia comandos con funciones lambda para ejecutarlos
   static std::map<String, std::function<void(JsonDocument &)>> comandos = {
-      {"Pendientes", [](JsonDocument &doc) // Comando "Pendientes"
+      {"tareas no completadas", [](JsonDocument &doc) // Comando "tareas no completadas"
        {
          datosPendientes.clear();            // Limpia los datos pendientes actuales
          datosPendientes = doc;              // Asigna los nuevos datos pendientes desde el JSON

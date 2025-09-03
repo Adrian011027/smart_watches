@@ -3,10 +3,9 @@ import json
 import asyncio
 import time
 import aiohttp
-from aiohttp import web
+from aiohttp import web, WSMsgType
 import uuid
 from datetime import datetime
-
 from estadoGlobal import relojes_conectados, ping_events, tareas_extra
 from Funciones.asignarIp import obtener_ip_local
 from utils.files import leer_empleados, guardar_empleados
@@ -19,7 +18,7 @@ from utils.tareas_utils import filtrar_tareas, dia_actual
 async def Textr(request):
     return web.json_response({
         "accion": "TareasExtras",
-        "Pendientes": tareas_extra
+        "tareas no completadas": tareas_extra
     })
 
 
@@ -169,9 +168,18 @@ def dia_a_espanol(dia_ingles):
     }
     return traduccion.get(dia_ingles.lower(), dia_ingles)
 
-
 async def endpoint_tareas_para_reloj(request):
     reloj_id = request.match_info["reloj_id"]
+
+    # Leer body solo si viene POST
+    payload = None
+    if request.method == "POST":
+        try:
+            payload = await request.json()
+            print(f"📥 POST recibido en /tareas_reloj/{reloj_id}: {payload}")
+        except Exception:
+            return web.json_response({"error": "Body inválido"}, status=400)
+
     if reloj_id not in relojes_conectados:
         return web.json_response({"error": f"Reloj {reloj_id} no conectado"}, status=404)
 
@@ -180,16 +188,18 @@ async def endpoint_tareas_para_reloj(request):
         return web.json_response({"error": "Empleado ID no válido"}, status=400)
 
     empleados = leer_empleados()
-    empleado = next((e for e in empleados if e["id"] == int(empleado_id)), None)
+    empleado = next((e for e in empleados if str(e["id"]) == str(empleado_id)), None)
     if not empleado:
         return web.json_response({"error": "Empleado no encontrado"}, status=404)
 
+    # Tareas del día actual
     dia_semana = dia_a_espanol(datetime.now().strftime("%A"))
     tareas_del_dia = empleado.get("tareas_asignadas", {}).get(dia_semana, [])
 
+    # Filtrar tareas "pendientes" (estatus 2)
     tareas_filtradas = []
     for i, tarea in enumerate(tareas_del_dia):
-        if tarea.get("estatus") == 2:  # TODO
+        if tarea.get("estatus") == 2:  # To Do
             tareas_filtradas.append({
                 "Hora": tarea.get("hora", ""),
                 "Tarea": tarea.get("nombre", ""),
@@ -200,25 +210,28 @@ async def endpoint_tareas_para_reloj(request):
             })
 
     respuesta = {
-        "accion": "Pendientes",
-        "Comando": "Pendientes",
-        "Pendientes": tareas_filtradas
+        "accion": "tareas no completadas",
+        "Comando": "tareas no completadas",
+        "tareas no completadas": tareas_filtradas
     }
 
+    print(f"📤 Enviando al reloj {reloj_id}: {json.dumps(respuesta, indent=2, ensure_ascii=False)}")
+
+    # Mandar al WS del reloj
     try:
         ws = relojes_conectados[reloj_id]["ws"]
         await ws.send_str(json.dumps(respuesta))
     except Exception as e:
-        print(f"❌ Error enviando tareas: {e}")
+        print(f"❌ Error enviando tareas a {reloj_id}: {e}")
 
     return web.json_response(respuesta)
-
 
 # ========================
 # 🔑 Update reloj → empleado
 # ========================
 async def update_reloj_id(request):
     payload = await request.json()
+    print(f"📥 PATCH recibido en /update_reloj_id: {payload}")  # 👈 Debug
     empleado_id = payload.get("empleado_id")
     reloj_id = payload.get("reloj_id")
 
@@ -398,3 +411,58 @@ async def enviar_tareas_extra(request):
 # Asegurar que exponemos el nombre correcto (aliases)
 if "send_extra_tasks" in globals() and "enviar_tareas_extra" not in globals():
     enviar_tareas_extra = send_extra_tasks
+
+
+async def websocket_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    # --- Identificar el reloj ---
+    reloj_id = request.query.get("reloj_id")
+    if not reloj_id:
+        reloj_id = f"reloj_{len(relojes_conectados) + 1}"
+
+    ip_cliente = request.remote or "desconocido"
+    nuevo_uuid = str(uuid.uuid4())[:8]
+
+    # --- Guardar en memoria ---
+    relojes_conectados[reloj_id] = {"ws": ws, "empleado_id": None, "ip": ip_cliente, "uuid": nuevo_uuid}
+    print(f"🔔 Reloj {reloj_id} conectado desde {ip_cliente}")
+
+    # --- Guardar también en el archivo JSON ---
+    actualizar_reloj_en_json(
+        reloj_id=reloj_id,
+        empleado_id="",
+        ip=ip_cliente,
+        uuid=nuevo_uuid,
+        estatus="conectado"
+    )
+
+    # Avisar al reloj que está conectado
+    await ws.send_json({"status": "connected", "reloj_id": reloj_id})
+
+    # --- Escuchar mensajes ---
+    try:
+        async for msg in ws:
+            if msg.type == WSMsgType.TEXT:
+                try:
+                    data = msg.json()
+                    print(f"📩 Mensaje de {reloj_id}: {data}")
+                    await ws.send_json({"status": "ok", "echo": data})
+                except Exception as e:
+                    await ws.send_json({"status": "error", "message": str(e)})
+            elif msg.type == WSMsgType.ERROR:
+                print(f"❌ Error WS en {reloj_id}: {ws.exception()}")
+    finally:
+        # --- Al desconectarse, actualizar en memoria y JSON ---
+        relojes_conectados.pop(reloj_id, None)
+        actualizar_reloj_en_json(
+            reloj_id=reloj_id,
+            empleado_id="",
+            ip=ip_cliente,
+            uuid=nuevo_uuid,
+            estatus="desconectado"
+        )
+        print(f"🔌 Reloj {reloj_id} desconectado")
+
+    return ws

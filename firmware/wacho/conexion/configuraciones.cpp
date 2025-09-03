@@ -2,7 +2,7 @@
 
 int reconnectAttempts = 0;      // Contador de intentos de reconexión
 
-const char *websocket_server = "192.168.100.47"; // IP del servidor Flask
+const char *websocket_server = "192.168.100.13"; // IP del servidor Flask
 const int websocket_port = 2298;              // Puerto del servidor Flask
 
 const char *ssid[] ={

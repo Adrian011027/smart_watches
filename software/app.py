@@ -5,9 +5,10 @@ from aiohttp import web
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dateutil.relativedelta import relativedelta, SU
 from datetime import datetime
+
 from rutas import setup_routes
 from Funciones.asignarIp import obtener_ip_local
-from Funciones.asignarReloj import verificar_tareas_expiradas
+from Funciones.asignarReloj import verificar_tareas_expiradas, websocket_handler  # 👈 import WS aquí
 from estadoGlobal import relojes_conectados, ping_events
 
 # =======================
@@ -77,9 +78,7 @@ async def endpoint_backup(request):
 async def startup_scheduler(app):
     scheduler = AsyncIOScheduler()
 
-    #prox_domingo = (time.time() + relativedelta(weekday=SU(+1)))
     prox_domingo = datetime.now() + relativedelta(weekday=SU(+1))
-
 
     scheduler.add_job(
         generar_backup,
@@ -107,7 +106,11 @@ app.on_startup.append(startup_scheduler)
 
 # Rutas (importa todas las de rutas/)
 setup_routes(app)
+
+# Endpoints adicionales
 app.router.add_get("/backup", endpoint_backup)
+app.router.add_get("/ws", websocket_handler)  # 👈 ahora el WS está en Funciones/asignarReloj
+
 # CORS
 cors = aiohttp_cors.setup(app, defaults={
     "*": aiohttp_cors.ResourceOptions(

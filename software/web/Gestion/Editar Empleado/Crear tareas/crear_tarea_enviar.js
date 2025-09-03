@@ -5,12 +5,10 @@ export function enviarTarea() {
       return;
     }
   
-    console.log("ID del empleado seleccionado:", window.empleadoSeleccionadoID);
   
     const nombre = document.getElementById("nombreTarea").value;
     const descripcion = document.getElementById("descripcionTarea").value;
     const horaInicio = document.getElementById("horaInicio").value;
-    alert(descripcion)
     // Estructura de la tarea
     let tareasAsignadas = {};
   
@@ -30,10 +28,10 @@ export function enviarTarea() {
     
   
     let data = { tareas_asignadas: tareasAsignadas };
-    alert(data)
+    console.log(data)
     // Enviar los datos con fetch
-    fetch(`/empleados/${window.empleadoSeleccionadoID}`, {
-      method: "PATCH",
+    fetch(`/tareas/${window.empleadoSeleccionadoID}`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
