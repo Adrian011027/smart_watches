@@ -1,6 +1,6 @@
 # rutas/routes_tareas.py
 from aiohttp import web
-from Funciones.tareas import tareas, tareas_dia
+from Funciones.tareas import tareas, tareas_dia, crear_tarea
 from Funciones.jsonRelog import tareas_completada
 import Funciones.asignarReloj as ar
 
@@ -13,6 +13,8 @@ def _resolve(*names):
 def setup_tareas_routes(app: web.Application):
     app.router.add_get("/tareas", tareas)
     app.router.add_get("/tareas/{id}/{dia}", tareas_dia)
+    app.router.add_post("/tareas/{id}", crear_tarea)   # POST = crear tarea
+
     
     # Intentamos resolver la función que envía tareas extra con varios aliases posibles
     enviar_tareas_extra = _resolve(

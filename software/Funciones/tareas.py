@@ -57,3 +57,47 @@ async def tareas_dia(request):
 
     except Exception as e:
         return web.json_response({'error': str(e)}, status=500)
+
+
+# ------------------ Crear tarea para un empleado ------------------
+async def crear_tarea(request):
+    empleado_id = request.match_info.get("id")
+    if not empleado_id:
+        return web.json_response({"error": "ID de empleado requerido"}, status=400)
+
+    empleados = leer_empleados()
+    empleado = next((e for e in empleados if str(e["id"]) == str(empleado_id)), None)
+    if not empleado:
+        return web.json_response({"error": "Empleado no encontrado"}, status=404)
+
+    try:
+        data = await request.json()
+    except Exception:
+        return web.json_response({"error": "Formato de request no válido"}, status=400)
+
+    if "tareas_asignadas" not in data or not isinstance(data["tareas_asignadas"], dict):
+        return web.json_response({"error": "Faltan tareas_asignadas"}, status=400)
+
+    # sacar el último id de tareas
+    max_id = 0
+    for tareas in empleado.get("tareas_asignadas", {}).values():
+        for tarea in tareas:
+            if tarea.get("id", 0) > max_id:
+                max_id = tarea["id"]
+
+    # añadir nuevas tareas con id autoincremental
+    for dia, nuevas_tareas in data["tareas_asignadas"].items():
+        if dia not in empleado["tareas_asignadas"]:
+            empleado["tareas_asignadas"][dia] = []
+        for nueva in nuevas_tareas:
+            max_id += 1
+            nueva["id"] = max_id
+            empleado["tareas_asignadas"][dia].append(nueva)
+
+    guardar_empleados(empleados)
+
+    return web.json_response({
+        "ok": True,
+        "message": f"Tareas agregadas al empleado {empleado_id}",
+        "empleado": empleado
+    }, status=201)

@@ -55,7 +55,7 @@ void marcarTareaCompletada(std::vector<Tarea> &listaTareas, lv_obj_t *boton, lv_
             doc["accion"] = esTareaExtra ? "tarea_extra" : "tarea_terminada";
             
             doc["Tarea"] = t.nombre;
-            doc["TareaId"] = t.taskId;
+            doc["TaskID"] = t.taskId;
             
             // ✅ Siempre usar el empleado asignado al reloj actual
             doc["Empleado"] = t.idEmpleado;
