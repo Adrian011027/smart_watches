@@ -106,7 +106,7 @@ void procesarComando(JsonDocument &doc)
             Serial.println("📤 Pong enviado al servidor:");
             Serial.println(json);
           } else {
-            Serial.println("❌ WebSocket no conectado. No se pudo enviar Pong.");
+            Serial.println("❌ WebSocket no conectado. No +se pudo enviar Pong.");
           }
         }}
       };

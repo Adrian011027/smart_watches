@@ -449,6 +449,13 @@ async def websocket_handler(request):
                     data = msg.json()
                     print(f"📩 Mensaje de {reloj_id}: {data}")
                     await ws.send_json({"status": "ok", "echo": data})
+
+                    if data.get("accion") in ("tarea_terminada", "tarea_extra"):
+                        empleado_id = data.get("Empleado")
+                        task_id = data.get("TaskID")
+                        if empleado_id and task_id:
+                            marcar_tarea_completada(empleado_id, task_id)
+
                 except Exception as e:
                     await ws.send_json({"status": "error", "message": str(e)})
             elif msg.type == WSMsgType.ERROR:
@@ -466,3 +473,25 @@ async def websocket_handler(request):
         print(f"🔌 Reloj {reloj_id} desconectado")
 
     return ws
+
+
+from utils.files import leer_empleados, guardar_empleados
+
+def marcar_tarea_completada(empleado_id, task_id):
+    empleados = leer_empleados()
+    actualizado = False
+
+    for emp in empleados:
+        if str(emp.get("id")) == str(empleado_id):
+            for dia, tareas in emp.get("tareas_asignadas", {}).items():
+                for tarea in tareas:
+                    if str(tarea.get("id")) == str(task_id):
+                        tarea["estatus"] = 3  # ✅ Marcar como completada
+                        actualizado = True
+                        break
+
+    if actualizado:
+        guardar_empleados(empleados)
+        print(f"✅ Tarea {task_id} de empleado {empleado_id} marcada como completada")
+    else:
+        print(f"⚠️ No se encontró la tarea {task_id} para el empleado {empleado_id}")
