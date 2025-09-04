@@ -1,5 +1,5 @@
 ###
-GET http://192.168.100.47:2298/empleados/2
+GET http://192.168.100.47:2298/empleados
 
 ###
 PATCH http://192.168.100.47:2298/empleados/2
