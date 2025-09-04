@@ -55,9 +55,20 @@ void marcarTareaCompletada(std::vector<Tarea> &listaTareas,
             struct TimerData {
                 std::vector<Tarea>* lista;
                 String taskId;
+                lv_obj_t* contenedor;         // contenedor de la tarea actual
+                lv_obj_t* boton;              // botón "TAREA COMPLETADA"
+                lv_obj_t* padre;              // contenedor padre
+                lv_obj_t* padrePrincipal;     // contenedor principal
             };
 
-            TimerData* data = new TimerData{&listaTareas, t.taskId};
+            TimerData* data = new TimerData{
+                &listaTareas,
+                t.taskId,
+                t.contenedor,
+                boton,
+                contenedor,
+                contenedorPrincipal
+            };
 
             // 3️⃣ Timer para borrar después de 3s
             lv_timer_create([](lv_timer_t* timer){
@@ -68,10 +79,11 @@ void marcarTareaCompletada(std::vector<Tarea> &listaTareas,
                                        [&](const Tarea& x){ return x.taskId == data->taskId; });
 
                 if (it != lista.end()) {
-                    // Borrar label
-                    if (it->label) {
-                        lv_obj_del(it->label);
+                    // 🔥 Borrar contenedor completo (hora + nombre + botón)
+                    if (data->contenedor) {
+                        lv_obj_del(data->contenedor);
                     }
+
                     // Borrar del vector
                     lista.erase(it);
 
@@ -81,16 +93,19 @@ void marcarTareaCompletada(std::vector<Tarea> &listaTareas,
                         lv_obj_set_style_text_color(lista[0].label, obtenerColorEstado("En Progreso"), 0);
                         Serial.printf("🔄 Nueva tarea en progreso: %s\n", lista[0].nombre.c_str());
                     }
+
+                    // 🔹 Refrescar botones/UI después de promover
+                    actualizarEstadoBotonYContenedor(lista,
+                                                     data->boton,
+                                                     data->padre,
+                                                     data->padrePrincipal);
                 }
 
                 delete data;
                 lv_timer_del(timer);
             }, 3000, data);
 
-            // 4️⃣ Refrescar botones/UI
-            actualizarEstadoBotonYContenedor(listaTareas, boton, contenedor, contenedorPrincipal);
-
-            // 📡 Enviar al servidor por WebSocket
+            // 4️⃣ Enviar al servidor por WebSocket
             JsonDocument doc;
             bool esTareaExtra = (&listaTareas == &listaTareasExtras);
             doc["accion"] = esTareaExtra ? "tarea_extra" : "tarea_terminada";

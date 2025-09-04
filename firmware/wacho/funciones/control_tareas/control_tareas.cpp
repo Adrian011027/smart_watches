@@ -53,14 +53,18 @@ void procesarPendientes(JsonDocument &doc)
         {
             Tarea &ultima = listaTareasRef.back();
 
-            if (tarea["TaskID"].is<const char*>())
-            {
-                ultima.taskId = tarea["TaskID"].as<String>();
-            }
-            else
-            {
+            if (tarea.containsKey("TaskID")) {
+                if (tarea["TaskID"].is<int>()) {
+                    // Si viene como número -> convertir a String
+                    ultima.taskId = String(tarea["TaskID"].as<int>());
+                } else if (tarea["TaskID"].is<const char*>()) {
+                    // Si viene como texto -> tomarlo directo
+                    ultima.taskId = tarea["TaskID"].as<const char*>();
+                }
+            } else {
                 Serial.println("⚠️ No se encontró TaskID en la tarea JSON");
             }
+
 
             if (tarea["IdEmpleado"].is<const char*>())
             {
@@ -135,6 +139,7 @@ void eventoDobleClicTarea(lv_event_t *e)
 }
 
 // 📌 Agregar una tarea al contenedor
+// 📌 Agregar una tarea al contenedor
 void agregarTarea(const char *hora, const char *tarea, const char *estado, const char *tipo)
 {
     lv_obj_t *contenedor;
@@ -144,7 +149,6 @@ void agregarTarea(const char *hora, const char *tarea, const char *estado, const
 
     if (strcmp(tipo, "TareaExtra") == 0)
     {
-        Serial.println("Tipo entre extra");
         contenedor = ui_ContTEContenido;
         contenedorPrincipal = ui_ContTareasExtras;
         boton = ui_BtnCompletarTareaExtra;
@@ -152,31 +156,37 @@ void agregarTarea(const char *hora, const char *tarea, const char *estado, const
     }
     else
     {
-        Serial.println("Tipo diferente");
         contenedor = ui_ContPContenido;
         contenedorPrincipal = ui_ContPanelPrincial;
         boton = ui_BtnCompletarTarea;
         listaTareasPtr = &listaTareas;
     }
 
-    crear_boton(contenedor);
+    // 🔹 Crear contenedor propio para la tarea
+    lv_obj_t* contenedorTarea = lv_obj_create(contenedor);
+    lv_obj_set_width(contenedorTarea, lv_pct(100));
+    lv_obj_set_height(contenedorTarea, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(contenedorTarea, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_all(contenedorTarea, 4, 0);
+
+    // 🔹 Botón y labels dentro del contenedor
+    crear_boton(contenedorTarea);
     agregarHora(hora, btnTarea);
     agregarLblTarea(tarea, estado, btnTarea);
 
     if (strcmp(tipo, "TareaExtra") == 0)
     {
-        Serial.println("evento agregado");
         lv_obj_add_event_cb(btnTarea, eventoDobleClicTarea, LV_EVENT_CLICKED, NULL);
-        Serial.println("2");
     }
     else
     {
         lv_obj_clear_flag(btnTarea, LV_OBJ_FLAG_CLICKABLE);
     }
     
-    listaTareasPtr->push_back({tarea, estado, hora, tipo, "", "", lbl_tarea});
+    // 🔹 Guardar también el contenedor en la estructura
+    listaTareasPtr->push_back({tarea, estado, hora, tipo, "", "", lbl_tarea, contenedorTarea});
 
-    Serial.printf("📌 Agregando tarea: %s con label %p\n", tarea, lbl_tarea);
+    Serial.printf("📌 Agregando tarea: %s con label %p y contenedor %p\n", tarea, lbl_tarea, contenedorTarea);
 
     actualizarEstadoBotonYContenedor(*listaTareasPtr, boton, contenedor, contenedorPrincipal);
 }

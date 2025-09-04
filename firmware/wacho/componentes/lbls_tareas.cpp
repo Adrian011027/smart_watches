@@ -9,7 +9,7 @@ void agregarHora(const char *hora, lv_obj_t *contenedor)
     lv_obj_t *labelHora = lv_label_create(contenedor);
     lv_label_set_text_fmt(labelHora, "%s", hora);
     lv_obj_set_style_text_color(labelHora, LV_COLOR_MAKE(255, 255, 255), 0);
-    lv_obj_set_style_text_font(labelHora, &lv_font_montserrat_20, 0);
+    lv_obj_set_style_text_font(labelHora, &lv_font_montserrat_16, 0);
     lv_obj_set_width(labelHora, 50);
     lv_obj_set_height(labelHora, LV_SIZE_CONTENT);
 
