@@ -2,10 +2,11 @@
 
 int reconnectAttempts = 0;      // Contador de intentos de reconexión
 
-const char *websocket_server = "192.168.100.13"; // IP del servidor Flask
+const char *websocket_server = "192.168.1.72"; // IP del servidor Flask
 const int websocket_port = 2298;              // Puerto del servidor Flask
 
 const char *ssid[] ={
+    "11111001110",
     "MEGACABLE-F29F",
     "SuizT-WiFi_2.4G",
     "La Tiendita",
@@ -14,11 +15,13 @@ const char *ssid[] ={
 };
 
 const char *password[] ={
+    "Caudillo13",
     "DfUE5f3u",
     "SuizT-Changarro",
     ".2020",
     "SuizT-LaTiendita",
     "THDtSFbD"
+    
 };
 
 const int numRedes = sizeof(ssid) / sizeof(ssid[0]);  // coontiene el tamaño del conjunto de las redes

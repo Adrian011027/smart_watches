@@ -1,9 +1,19 @@
 from aiohttp import web
 from utils.files import leer_users, leer_empleados
-import json, bcrypt
+import json, bcrypt, re
+
+# ───────────────────────────────
+# Detectar si un string es hash bcrypt válido
+# ───────────────────────────────
+def is_bcrypt_hash(value: str) -> bool:
+    if not value or not isinstance(value, str):
+        return False
+    return bool(re.match(r'^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$', value))
+
 
 async def login(request):
     return web.FileResponse('./web/login/login.html')
+
 
 async def login_post(request):
     data = await request.json()
@@ -11,7 +21,10 @@ async def login_post(request):
     password = data.get("password")
 
     if not username or not password:
-        return web.json_response({"success": False, "detail": "Faltan credenciales"}, status=400)
+        return web.json_response(
+            {"success": False, "detail": "Faltan credenciales"},
+            status=400
+        )
 
     # =========================
     # 1️⃣ Buscar en users.json
@@ -21,8 +34,19 @@ async def login_post(request):
 
     if user_found:
         hashed = user_found.get("password")
-        # Comparar con bcrypt si está en hash
-        if hashed and bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8")):
+        valido = False
+
+        if hashed:
+            # Caso texto plano
+            if hashed == password:
+                valido = True
+            # Caso hash bcrypt válido
+            elif is_bcrypt_hash(hashed) and bcrypt.checkpw(
+                password.encode("utf-8"), hashed.encode("utf-8")
+            ):
+                valido = True
+
+        if valido:
             role = user_found.get("role", "empleado")
             empleado_id = user_found.get("empleado_id")
             user = {
@@ -45,20 +69,29 @@ async def login_post(request):
 
     if empleado_found:
         hashed = empleado_found.get("password_dp")
+        valido = False
+
         if hashed:
-            # Si estaba en texto plano, comparar directo
-            if hashed == password or bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8")):
-                role = empleado_found.get("role_dp", "empleado")
-                empleado_id = empleado_found.get("id")
-                user = {
-                    "username": username,
-                    "role": role,
-                    "empleado_id": empleado_id,
-                    "tipo": "empleado"
-                }
-                response = web.json_response({"success": True, "message": "Login exitoso", **user})
-                response.set_cookie("usuario", json.dumps(user))
-                return response
+            if hashed == password:
+                valido = True
+            elif is_bcrypt_hash(hashed) and bcrypt.checkpw(
+                password.encode("utf-8"), hashed.encode("utf-8")
+            ):
+                valido = True
+
+        if valido:
+            role = empleado_found.get("role_dp", "empleado")
+            empleado_id = empleado_found.get("id")
+            user = {
+                "username": username,
+                "role": role,
+                "empleado_id": empleado_id,
+                "tipo": "empleado"
+            }
+            response = web.json_response({"success": True, "message": "Login exitoso", **user})
+            response.set_cookie("usuario", json.dumps(user))
+            return response
+
         return web.json_response({"success": False, "detail": "Contraseña incorrecta"}, status=401)
 
     # =============================

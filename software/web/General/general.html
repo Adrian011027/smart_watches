@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/web/General/general.css"/>
   <link rel="stylesheet" href="/web/menu/menu.css"/>
   <script src="/web/General/general.js" defer></script>
-  <script src="/web/menu/menu.js"></script>
+  <script src="/web/menu/menu.js" defer></script>
 </head>
 <body>
   <div id="menu-container"></div>
@@ -15,42 +15,34 @@
   <div class="container">
     <h2>Actividades Mínimas Diarias y Otras Obligaciones</h2>
 
-    <!-- Contenedor para flechas de empleados, posicionado arriba a la derecha -->
-    <div id="employee-arrows">
-      <button id="prev-emp-page" title="Trabajadores anteriores">&larr;</button>
-      <button id="next-emp-page" title="Trabajadores siguientes">&rarr;</button>
+    <!-- Controles de paginación de empleados -->
+    <div id="employee-arrows" aria-label="Paginación de empleados">
+      <button id="prev-emp-page" title="Trabajadores anteriores" aria-label="Trabajadores anteriores">&larr;</button>
+      <button id="next-emp-page" title="Trabajadores siguientes" aria-label="Trabajadores siguientes">&rarr;</button>
     </div>
     
-    <!-- Reloj estilizado debajo del título -->
-    <div class="clock-container">
-      <!-- Botón "Hoy" (izquierda) -->
+    <!-- Reloj / Día (sin etiquetas de texto) -->
+    <div class="clock-container" aria-label="Reloj y selección de día">
       <div class="clock-col arrows-col">
-        <button id="today-btn" title="Regresar al día actual">Hoy</button>
+        <button id="today-btn" title="Regresar al día actual" aria-label="Ir a hoy">Hoy</button>
       </div>
 
-      <!-- Día de las tareas -->
       <div class="clock-col">
         <div class="clock-timer" id="tasks-day"></div>
-        <div class="clock-label">Día</div>
       </div>
 
-      <!-- Columnas para la hora real -->
       <div class="clock-col clock-col-real">
         <div class="clock-timer clock-hours"></div>
-        <div class="clock-label">Horas</div>
       </div>
       <div class="clock-col clock-col-real">
         <div class="clock-timer clock-minutes"></div>
-        <div class="clock-label">Minutos</div>
       </div>
       <div class="clock-col clock-col-real">
         <div class="clock-timer clock-seconds"></div>
-        <div class="clock-label">Segundos</div>
       </div>
 
-      <!-- Flecha para avanzar un día (derecha) -->
       <div class="clock-col arrows-col">
-        <button id="next-day-btn" title="Siguiente día">→</button>
+        <button id="next-day-btn" title="Siguiente día" aria-label="Siguiente día">→</button>
       </div>
     </div>
 
@@ -63,5 +55,19 @@
       </table>
     </div>
   </div>
+
+    <!-- Modal de tarea -->
+  <div id="task-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="modal-close" class="modal-close">&times;</span>
+      <h3 id="modal-task-name">Nombre de la tarea</h3>
+      <p id="modal-task-desc">Descripción completa de la tarea...</p>
+      <div class="modal-actions">
+        <button id="modal-close-btn">Cerrar</button>
+        <button id="modal-complete-btn">Tarea Completada</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
