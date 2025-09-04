@@ -6,7 +6,7 @@
 #include <lvgl.h>
 #include <vector>
 
-// Estructura para representar una tarea completa
+// 📌 Estructura para representar una tarea completa
 struct Tarea {
     String nombre;
     String estado;
@@ -14,17 +14,18 @@ struct Tarea {
     String tipo;
     String taskId;
     String idEmpleado;
-    lv_obj_t* label;
+    lv_obj_t* label;       // Label del texto de la tarea
+    lv_obj_t* contenedor;  // Contenedor completo (hora + nombre + botón)
 };
 
-// Estructura para enviar tarea completada al servidor
+// 📌 Estructura para enviar tarea completada al servidor
 struct TareaCompletadaData {
     const char* nombre;
     const char* tipo;
     const char* hora;
 };
 
-// Variables globales para tareas y referencias LVGL
+// 📌 Variables globales para tareas y referencias LVGL
 extern std::vector<Tarea> listaTareas;
 extern std::vector<Tarea> listaTareasExtras;
 
